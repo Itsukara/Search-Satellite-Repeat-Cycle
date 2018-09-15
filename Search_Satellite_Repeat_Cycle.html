@@ -11775,7 +11775,7 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Search-Repeat-Cycle-of-Satellite-from-its-TLE">Search Repeat Cycle of Satellite from its TLE<a class="anchor-link" href="#Search-Repeat-Cycle-of-Satellite-from-its-TLE">&#182;</a></h1>
+<h1 id="Search-Repeat-Cycle-of-Satellite-from-its-TLE">Search Repeat Cycle of Satellite from its TLE<a class="anchor-link" href="#Search-Repeat-Cycle-of-Satellite-from-its-TLE">&#182;</a></h1><h2 id="Satellite-must-be-polar-orbit">Satellite must be polar orbit<a class="anchor-link" href="#Satellite-must-be-polar-orbit">&#182;</a></h2>
 </div>
 </div>
 </div>
@@ -11835,10 +11835,12 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Search date with Latitude = 0</span>
-<span class="c1"># date: latitude must be near 0 at specified date</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Search date with Latitude = lat</span>
+<span class="c1"># satellite: ephem object</span>
+<span class="c1"># date: latitude must be near lat at specified date</span>
+<span class="c1"># lat: target latitude</span>
 <span class="c1"># eps : small enough value</span>
-<span class="k">def</span> <span class="nf">lat0date</span><span class="p">(</span><span class="n">satellite</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">lat0date</span><span class="p">(</span><span class="n">satellite</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
   <span class="n">d1</span> <span class="o">=</span> <span class="n">date</span>
   <span class="n">satellite</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">d1</span><span class="p">)</span>
   <span class="n">l1</span>  <span class="o">=</span> <span class="n">satellite</span><span class="o">.</span><span class="n">sublat</span> <span class="o">/</span> <span class="n">ephem</span><span class="o">.</span><span class="n">degree</span>
@@ -11850,7 +11852,7 @@ div#notebook {
   <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">l2</span> <span class="o">-</span> <span class="n">l1</span><span class="p">)</span> <span class="o">/</span> <span class="n">eps</span>
   <span class="n">b</span> <span class="o">=</span> <span class="n">l1</span> <span class="o">-</span> <span class="n">a</span> <span class="o">*</span> <span class="n">d1</span>
 
-  <span class="n">dt</span>   <span class="o">=</span> <span class="o">-</span><span class="n">b</span> <span class="o">/</span> <span class="n">a</span>
+  <span class="n">dt</span>   <span class="o">=</span> <span class="p">(</span><span class="n">lat</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span> <span class="o">/</span> <span class="n">a</span>
   
   <span class="k">return</span> <span class="n">dt</span>
 </pre></div>
@@ -11865,50 +11867,13 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Check Latitude is almost 0</span>
-<span class="c1"># Latitude must be near 0 at specified date</span>
-<span class="n">dt</span>  <span class="o">=</span> <span class="n">ephem</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="s2">&quot;2018-09-18 10:46:01&quot;</span><span class="p">)</span>
-<span class="n">dt0</span> <span class="o">=</span> <span class="n">dt</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Check Latitude is less than 45</span>
+<span class="n">dt</span>  <span class="o">=</span> <span class="n">ephem</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="s2">&quot;2018-09-18 10:35:01&quot;</span><span class="p">)</span>
 
 <span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">hight</span><span class="p">,</span> <span class="n">mmotion</span><span class="p">,</span> <span class="n">obperiod</span><span class="p">)</span> <span class="o">=</span> <span class="n">getEphem</span><span class="p">(</span><span class="n">satellite</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lat(+N):</span><span class="si">%.4f</span><span class="s2">, Long(+E):</span><span class="si">%.4f</span><span class="s2">, Hight(m):</span><span class="si">%.1f</span><span class="s2">, MeanMotion(RevPerDay):</span><span class="si">%.8f</span><span class="s2">, OrbitalPeriod(days):</span><span class="si">%.8f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">hight</span><span class="p">,</span> <span class="n">mmotion</span><span class="p">,</span> <span class="n">obperiod</span><span class="p">))</span>
-</pre></div>
 
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Lat(+N):-0.1840, Long(+E):40.9467, Hight(m):496775.2, MeanMotion(RevPerDay):15.24397549, OrbitalPeriod(days):0.06559969
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Calculate time with Latitude = 0</span>
-<span class="n">ep</span> <span class="o">=</span> <span class="n">obperiod</span> <span class="o">/</span> <span class="mi">360</span> <span class="o">/</span> <span class="mi">10</span>
-<span class="n">dt</span> <span class="o">=</span> <span class="n">lat0date</span><span class="p">(</span><span class="n">satellite</span><span class="p">,</span> <span class="n">dt0</span><span class="p">,</span> <span class="n">ep</span><span class="p">)</span>
 <span class="n">dt00</span> <span class="o">=</span> <span class="n">dt</span>
-<span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">hight</span><span class="p">,</span> <span class="n">mmotion</span><span class="p">,</span> <span class="n">obperiod</span><span class="p">)</span> <span class="o">=</span> <span class="n">getEphem</span><span class="p">(</span><span class="n">satellite</span><span class="p">,</span> <span class="n">dt</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lat(+N):</span><span class="si">%.4f</span><span class="s2">, Long(+E):</span><span class="si">%.4f</span><span class="s2">, Hight(m):</span><span class="si">%.1f</span><span class="s2">, MeanMotion(RevPerDay):</span><span class="si">%.8f</span><span class="s2">, OrbitalPeriod(days):</span><span class="si">%.8f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">hight</span><span class="p">,</span> <span class="n">mmotion</span><span class="p">,</span> <span class="n">obperiod</span><span class="p">))</span>
-
 <span class="n">latitude0</span>  <span class="o">=</span> <span class="n">latitude</span>
 <span class="n">longitude0</span> <span class="o">=</span> <span class="n">longitude</span>
 <span class="n">mmotion0</span>   <span class="o">=</span> <span class="n">mmotion</span>
@@ -11929,7 +11894,7 @@ div#notebook {
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Lat(+N):0.0000, Long(+E):40.9827, Hight(m):496747.4, MeanMotion(RevPerDay):15.24397549, OrbitalPeriod(days):0.06559969
+<pre>Lat(+N):41.3158, Long(+E):50.2697, Hight(m):498724.6, MeanMotion(RevPerDay):15.24397549, OrbitalPeriod(days):0.06559969
 </pre>
 </div>
 </div>
@@ -11940,11 +11905,11 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Search Repeat Cycle</span>
-
+<span class="n">eps</span>      <span class="o">=</span> <span class="n">obperiod</span> <span class="o">/</span> <span class="mi">360</span> <span class="o">/</span> <span class="mi">10</span>
 <span class="n">maxlat</span>   <span class="o">=</span> <span class="mf">1.0</span> <span class="c1"># max error of latitude[deg]</span>
 <span class="n">maxlong</span>  <span class="o">=</span> <span class="mf">1.0</span> <span class="c1"># max error of longitude[deg]</span>
 <span class="n">maxdays</span>  <span class="o">=</span> <span class="mi">190</span> <span class="c1"># max days of search</span>
@@ -11968,7 +11933,7 @@ div#notebook {
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%6.2f</span><span class="s2">(days)] </span><span class="si">%10.4f</span><span class="s2"> </span><span class="si">%+10.4f</span><span class="s2"> </span><span class="si">%+10.4f</span><span class="s2"> | </span><span class="si">%10.4f</span><span class="s2"> </span><span class="si">%+10.4f</span><span class="s2"> </span><span class="si">%+10.4f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dtstr</span><span class="p">,</span> <span class="n">days</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> <span class="n">difflat</span><span class="p">,</span> <span class="n">difflatlen</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="n">difflong</span><span class="p">,</span> <span class="n">difflonglen</span><span class="p">))</span>
 
   <span class="c1"># update dt</span>
-  <span class="n">dt</span> <span class="o">=</span> <span class="n">lat0date</span><span class="p">(</span><span class="n">satellite</span><span class="p">,</span> <span class="n">dt</span> <span class="o">+</span> <span class="n">obperiod</span><span class="p">,</span> <span class="n">ep</span><span class="p">)</span>
+  <span class="n">dt</span> <span class="o">=</span> <span class="n">lat0date</span><span class="p">(</span><span class="n">satellite</span><span class="p">,</span> <span class="n">dt</span> <span class="o">+</span> <span class="n">obperiod</span><span class="p">,</span> <span class="n">latitude0</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11987,24 +11952,24 @@ div#notebook {
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Repeat Cycle of WORLDVIEW-1 (WV-1)
                                          Lat(+N) diff[deg]   diff[Km] |   Long(+E)  diff[deg]   diff[Km]
-[2018-09-18 19:45:58 =   0.00(days)]     0.0000    +0.0000    +0.0000 |    40.9827    +0.0000    +0.0000
-[2018-10-05 19:47:24 =  17.00(days)]     0.0000    -0.0000    -0.0001 |    40.6255    -0.3573   -39.7726
-[2018-10-18 19:42:38 =  30.00(days)]     0.0000    -0.0000    -0.0001 |    41.8222    +0.8395   +93.4510
-[2018-10-22 19:48:23 =  34.00(days)]     0.0000    -0.0000    -0.0001 |    40.3868    -0.5959   -66.3356
-[2018-11-04 19:43:14 =  47.00(days)]     0.0000    -0.0000    -0.0001 |    41.6753    +0.6925   +77.0932
-[2018-11-08 19:48:52 =  51.00(days)]     0.0000    -0.0000    -0.0001 |    40.2682    -0.7146   -79.5437
-[2018-11-21 19:43:22 =  64.00(days)]     0.0000    -0.0000    -0.0001 |    41.6482    +0.6655   +74.0808
-[2018-11-25 19:48:54 =  68.00(days)]     0.0000    -0.0000    -0.0001 |    40.2692    -0.7135   -79.4312
-[2018-12-08 19:43:02 =  81.00(days)]     0.0000    -0.0000    -0.0001 |    41.7397    +0.7570   +84.2643
-[2018-12-12 19:48:27 =  85.00(days)]     0.0000    -0.0000    -0.0001 |    40.3884    -0.5944   -66.1664
-[2018-12-25 19:42:14 =  98.00(days)]     0.0000    -0.0000    -0.0001 |    41.9483    +0.9656  +107.4909
-[2018-12-29 19:47:32 = 102.00(days)]     0.0000    -0.0000    -0.0001 |    40.6245    -0.3582   -39.8741
-[2019-01-15 19:46:09 = 119.00(days)]     0.0000    -0.0000    -0.0001 |    40.9782    -0.0045    -0.5007
-[2019-02-01 19:44:18 = 136.00(days)]     0.0000    -0.0000    -0.0001 |    41.4512    +0.4684   +52.1455
-[2019-02-05 19:49:21 = 140.00(days)]     0.0000    -0.0000    -0.0001 |    40.1901    -0.7926   -88.2347
-[2019-02-22 19:46:54 = 157.00(days)]     0.0000    -0.0000    -0.0001 |    40.8120    -0.1707   -19.0038
-[2019-03-11 19:43:58 = 174.00(days)]     0.0000    -0.0000    -0.0001 |    41.5539    +0.5712   +63.5832
-[2019-03-15 19:48:47 = 178.00(days)]     0.0000    -0.0000    -0.0001 |    40.3560    -0.6268   -69.7719
+[2018-09-18 19:35:01 =   0.00(days)]    41.3158    +0.0000    +0.0000 |    50.2697    +0.0000    +0.0000
+[2018-10-05 19:36:27 =  17.00(days)]    41.3158    -0.0000    -0.0011 |    49.9130    -0.3566   -39.6993
+[2018-10-18 19:31:41 =  30.00(days)]    41.3158    -0.0000    -0.0008 |    51.1095    +0.8398   +93.4913
+[2018-10-22 19:37:26 =  34.00(days)]    41.3158    -0.0000    -0.0004 |    49.6739    -0.5958   -66.3204
+[2018-11-04 19:32:17 =  47.00(days)]    41.3158    -0.0000    -0.0004 |    50.9614    +0.6917   +77.0031
+[2018-11-08 19:37:56 =  51.00(days)]    41.3158    -0.0000    -0.0011 |    49.5540    -0.7157   -79.6673
+[2018-11-21 19:32:26 =  64.00(days)]    41.3158    -0.0000    -0.0004 |    50.9333    +0.6637   +73.8808
+[2018-11-25 19:37:57 =  68.00(days)]    41.3158    -0.0000    -0.0008 |    49.5542    -0.7154   -79.6411
+[2018-12-08 19:32:05 =  81.00(days)]    41.3158    -0.0000    -0.0004 |    51.0249    +0.7553   +84.0784
+[2018-12-12 19:37:30 =  85.00(days)]    41.3158    -0.0000    -0.0008 |    49.6738    -0.5959   -66.3299
+[2018-12-25 19:31:17 =  98.00(days)]    41.3158    -0.0000    -0.0004 |    51.2347    +0.9650  +107.4240
+[2018-12-29 19:36:35 = 102.00(days)]    41.3158    -0.0000    -0.0004 |    49.9111    -0.3585   -39.9103
+[2019-01-15 19:35:12 = 119.00(days)]    41.3158    -0.0000    -0.0008 |    50.2655    -0.0041    -0.4611
+[2019-02-01 19:33:21 = 136.00(days)]    41.3158    -0.0000    -0.0004 |    50.7379    +0.4683   +52.1277
+[2019-02-05 19:38:24 = 140.00(days)]    41.3158    +0.0000    +0.0000 |    49.4766    -0.7931   -88.2822
+[2019-02-22 19:35:57 = 157.00(days)]    41.3158    -0.0000    -0.0004 |    50.0973    -0.1724   -19.1919
+[2019-03-11 19:33:02 = 174.00(days)]    41.3158    +0.0000    +0.0000 |    50.8386    +0.5689   +63.3350
+[2019-03-15 19:37:50 = 178.00(days)]    41.3158    +0.0000    +0.0000 |    49.6407    -0.6289   -70.0137
 </pre>
 </div>
 </div>
