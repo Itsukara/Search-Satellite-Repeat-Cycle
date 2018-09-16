@@ -45,6 +45,7 @@ def jday2str(jday):
 # maxlat: max error of latitude[deg]
 # maxlong: max error of longitude[deg]
 # maxdays: max days of search
+import math
 def searchRepeatCycle(TLE, datestr, maxlat, maxlong, maxdays):
     # Initial Date
     dt0 = dt = ephem.Date(datestr)
@@ -67,11 +68,10 @@ def searchRepeatCycle(TLE, datestr, maxlat, maxlong, maxdays):
       difflong  = longitude - longitude0
 
       if abs(difflat) < maxlat and abs(difflong) <maxlong:
-    #    dtstr= str(ephem.localtime(ephem.Date(dt)))[0:19]
         dtstr =jday2str(dt)
         days  = dt - dt0
         difflatlen  = difflat  / 360 * latlen
-        difflonglen = difflong / 360 * longlen
+        difflonglen = difflong / 360 * longlen * math.cos(math.radians(latitude))
         print("[%s = %6.2f(days)] %10.4f %+10.4f %+10.4f | %10.4f %+10.4f %+10.4f" % (dtstr, days, latitude, difflat, difflatlen, longitude, difflong, difflonglen))
 
       # update dt
