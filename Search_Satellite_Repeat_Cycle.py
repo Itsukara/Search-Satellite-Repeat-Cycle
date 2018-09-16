@@ -13,16 +13,6 @@ import ephem
 # In[2]:
 
 
-# Two Line Element
-line1 = "WORLDVIEW-1 (WV-1)"
-line2 = "1 32060U 07041A   18258.02295190  .00000790  00000-0  35109-4 0  9993"
-line3 = "2 32060  97.3879  16.4069 0002228  57.6683  54.8987 15.24397549611548"
-satellite = ephem.readtle(line1, line2, line3)
-
-
-# In[3]:
-
-
 # Get Ephemeris Data
 def getEphem(satellite, date):
   satellite.compute(date)
@@ -34,7 +24,7 @@ def getEphem(satellite, date):
   return (latitude, longitude, hight, mmotion, obperiod)
 
 
-# In[4]:
+# In[3]:
 
 
 # Search date with Latitude = lat
@@ -59,49 +49,92 @@ def lat0date(satellite, date, lat, eps):
   return dt
 
 
+# In[4]:
+
+
+import datetime
+def jday2str(jday):
+    (year, month, day, hour, minute, second) = ephem.Date(jday).tuple()
+    second = int(second)
+    dt = datetime.datetime(year, month, day, hour, minute, second)
+    return dt.isoformat().replace('T', ' ')
+
+
 # In[5]:
 
 
-# Check Latitude is less than 45
-dt  = ephem.Date("2018-09-18 10:35:01")
+# TLE: TLE of satellite
+# datestr: Initial date (string)
+# maxlat: max error of latitude[deg]
+# maxlong: max error of longitude[deg]
+# maxdays: max days of search
+def searchRepeatCycle(TLE, datestr, maxlat, maxlong, maxdays):
+    # Initial Date
+    dt0 = dt = ephem.Date(datestr)
 
-(latitude, longitude, hight, mmotion, obperiod) = getEphem(satellite, dt)
-print("Lat(+N):%.4f, Long(+E):%.4f, Hight(m):%.1f, MeanMotion(RevPerDay):%.8f, OrbitalPeriod(days):%.8f" % (latitude, longitude, hight, mmotion, obperiod))
+    # Calculate Initial Ephemeris
+    (line1, line2, line3) = TLE.split("\n")
+    satellite = ephem.readtle(line1, line2, line3)
+    (latitude0, longitude0, hight0, mmotion0, obperiod0) = getEphem(satellite, dt)
 
-dt00 = dt
-latitude0  = latitude
-longitude0 = longitude
-mmotion0   = mmotion
-obperiod0  = obperiod
+    # Search Repeat Cycle
+    eps      = obperiod0 / 360 / 10
+    latlen   = 40009 # Circumference - meridional [Km]
+    longlen  = 40075 # Circumference - quatorial  [Km]
+
+    dt = dt0
+    print("                                         Lat(+N) diff[deg]   diff[Km] |   Long(+E)  diff[deg]   diff[Km]")
+    for d in range(int(maxdays * mmotion0)):
+      (latitude, longitude, _, _, _) = getEphem(satellite, dt)
+      difflat   = latitude  - latitude0
+      difflong  = longitude - longitude0
+
+      if abs(difflat) < maxlat and abs(difflong) <maxlong:
+    #    dtstr= str(ephem.localtime(ephem.Date(dt)))[0:19]
+        dtstr =jday2str(dt)
+        days  = dt - dt0
+        difflatlen  = difflat  / 360 * latlen
+        difflonglen = difflong / 360 * longlen
+        print("[%s = %6.2f(days)] %10.4f %+10.4f %+10.4f | %10.4f %+10.4f %+10.4f" % (dtstr, days, latitude, difflat, difflatlen, longitude, difflong, difflonglen))
+
+      # update dt
+      dt = lat0date(satellite, dt + obperiod0, latitude0, eps)
 
 
-# In[6]:
+# In[9]:
 
 
-# Search Repeat Cycle
-eps      = obperiod / 360 / 10
+# Search Repeat Cycle for each TLE and datestr
+def searchRepeatCycles(TLEs, datestrs, maxlat, maxlong, maxdays):
+    for TLE in TLEs:
+        print("\n" + TLE + "\n")
+        for datestr in datestrs:
+            searchRepeatCycle(TLE, datestr, maxlat, maxlong, maxdays)
+            print("")    
+
+
+# In[10]:
+
+
+# INPUT DATA
+# Two Line Element
+TLE1 = '''WORLDVIEW-1 (WV-1)
+1 32060U 07041A   18258.02295190  .00000790  00000-0  35109-4 0  9993
+2 32060  97.3879  16.4069 0002228  57.6683  54.8987 15.24397549611548'''
+
+TLE2 = '''WORLDVIEW-1 (WV-1)      
+1 32060U 07041A   18258.81766689  .00000958  00000-0  41975-4 0  9990
+2 32060  97.3884  17.1911 0002170  64.8045  86.2416 15.24400435611664'''
+
+TLEs = (TLE1, TLE2)
+
+# dates to search
+datestrs = ("2018-09-18 10:46:01", "2018-09-18 10:41:01", "2018-09-18 10:36:01")
+
+# Search Condition
 maxlat   = 1.0 # max error of latitude[deg]
 maxlong  = 1.0 # max error of longitude[deg]
-maxdays  = 190 # max days of search
+maxdays  = 180 # max days of search
 
-latlen   = 40009 # Circumference - meridional [Km]
-longlen  = 40075 # Circumference - quatorial  [Km]
-
-dt = dt00
-print("Repeat Cycle of " + satellite.name)
-print("                                         Lat(+N) diff[deg]   diff[Km] |   Long(+E)  diff[deg]   diff[Km]")
-for d in range(int(maxdays * mmotion0)):
-  (latitude, longitude, _, _, _) = getEphem(satellite, dt)
-  difflat   = latitude  - latitude0
-  difflong  = longitude - longitude0
-  
-  if abs(difflat) < maxlat and abs(difflong) <maxlong:
-    dtstr= str(ephem.localtime(ephem.Date(dt)))[0:19]
-    days = dt - dt00
-    difflatlen  = difflat  / 360 * latlen
-    difflonglen = difflong / 360 * longlen
-    print("[%s = %6.2f(days)] %10.4f %+10.4f %+10.4f | %10.4f %+10.4f %+10.4f" % (dtstr, days, latitude, difflat, difflatlen, longitude, difflong, difflonglen))
-
-  # update dt
-  dt = lat0date(satellite, dt + obperiod, latitude0, eps)
+searchRepeatCycles(TLEs, datestrs, maxlat, maxlong, maxdays)
 
