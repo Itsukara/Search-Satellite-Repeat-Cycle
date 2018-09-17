@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>Repeat Cycle - Cloud Function Version</title>
+<title>Repeat Cycle (by Google Cloud Function)</title>
 </head>
 <body>
-<form method="POST" action="https://us-central1-itsukara-21.cloudfunctions.net/RepeatCycle">
+<form method="POST" action="http://127.0.0.1:5000/">
     <div>
-        TLE:<br>
+        TLE (衛星名含めた3行。省略時はCOSMO-SkyMed-4のTLEを使用):<br>
         <textarea name="TLE" cols=80 rows=3></textarea>
     </div>
     <div>
-        date:<br>
+         date[YYYY-MM-DD hh:mm:ss] (省略時は現在時刻を使用):<br>
         <input type=text name="date"><td>
+    </div>
+    <div>
+        表示対象の、経度誤差の許容最大値[deg]:<br>
+        <input type=text name="maxlong"><td>
+    </div>
+    <div>
+         Repeat Cycleの、経度誤差の許容最大値[Km]:<br>
+        <input type=text name="maxlongKm"><td>
     </div>
     <br>
     <input type=submit value="Search Repeat Cycle">
