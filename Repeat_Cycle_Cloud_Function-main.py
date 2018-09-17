@@ -23,11 +23,14 @@ def r():
 def get_args(request, names):
     ns = names.split(",")
     r  = []
+    request_json = request.get_json()
     for n in ns:
-        if n in request.args:
+        if request.args   and n in request.args:
             r.append(request.args[n])
-        elif n in request.form:
+        elif request.form and n in request.form:
             r.append(request.form[n])
+        elif request_json and n in request_json:
+            r.append(request_json[n])
         else:
             r.append("")
     return r
