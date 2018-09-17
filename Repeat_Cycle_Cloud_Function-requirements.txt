@@ -1,0 +1,6 @@
+###### Requirements without Version Specifiers ######`
+pyephem
+Flask
+
+###### Requirements with Version Specifiers ######`
+# package>=version
