@@ -17,3 +17,8 @@ Try following for Serverless test (Using Google Cloud Function)
 - Satellite must be polar orbit
 - Install pyephem by following command if not installed:
   - ```conda install pyephem```
+
+# Reference
+See following for reference.
+- http://itsukara.hateblo.jp/entry/2018/09/16/155450 (Japanese)
+- http://itsukara.hateblo.jp/entry/2018/09/17/182343 (Japanese)
