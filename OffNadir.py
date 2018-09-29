@@ -6,8 +6,8 @@ from math import asin, cos
 # Sample Program to search pass and OffNadir of AOI
 DEBUG = True
 R = 6378.1 # Earth Radius
-MaxOffNadir = ephem.degrees("45.0") # Upper Limit of off-nadir angle
-MaxPass = 10 # Number of pass to search
+MaxOffNadir = "45.0" # Upper Limit of off-nadir angle
+MaxPass = 5 # Number of pass to search
 
 # AOI / Obserber
 AOI = ephem.Observer()
@@ -23,6 +23,10 @@ TLE = '''WORLDVIEW-4 (WV-4)
 (line0, line1, line2) = TLE.split("\n")
 line0 = line0.strip()
 
+yyyy = "20" + line1[18:20]
+yday = line1[20:32]
+epoch = ephem.Date(ephem.Date(yyyy + "/1/1") + float(yday) - 1.0)
+
 # Satellite of ephem
 satellite = ephem.readtle(line0, line1, line2)
 
@@ -34,12 +38,19 @@ OrbitOffset = 0 # Offset from orbit number of pyorbital
 satellite.compute(AOI)
 
 # Print setting
-print("*** TLE")
+print("*** TLE (epoch=%s)" % (epoch))
 print(TLE)
 print("")
-print("*** AOI: lon=%s, lat=%s" % (AOI.lon, AOI.lat))
+print("*** AOI")
+print("lon=%s, lat=%s" % (AOI.lon, AOI.lat))
+print("")
+print("*** Search Parameters")
+print("MaxOffNadir=%s" % (MaxOffNadir))
+print("MaxPass=%s" % (MaxPass))
+print("OrbitOffset=%d" % (OrbitOffset))
 print("")
 
+# Utility functions
 def deg(radians):
     return radians / ephem.degree
 
@@ -49,6 +60,10 @@ def jday2datetime(jday):
     return datetime.datetime(year, month, day, hour, minute, second)
 
 # Search Pass not in Earth's shadow and off-nadir < MaxOffNadir
+print("*** Searching Passes")
+print("")
+
+MaxOffNadir = ephem.degrees(MaxOffNadir)
 i = 0
 while i < MaxPass:
     (rt, ra, mat, ma, st, sa) = AOI.next_pass(satellite)
@@ -83,3 +98,6 @@ while i < MaxPass:
     # Move Satellite to end of pass + 1 sec.
     AOI.date = st + ephem.second
     satellite.compute(AOI)
+
+print("")
+print("*** Finished")
