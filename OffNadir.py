@@ -4,10 +4,19 @@ import datetime
 from math import asin, cos
 
 # Sample Program to search pass and OffNadir of AOI
-DEBUG = True
+DEBUG = False
 R = 6378.1 # Earth Radius
 MaxOffNadir = "45.0" # Upper Limit of off-nadir angle
 MaxPass = 5 # Number of pass to search
+
+# Utility functions
+def deg(radians):
+    return radians / ephem.degree
+
+def jday2datetime(jday):
+    (year, month, day, hour, minute, second) = ephem.Date(jday).tuple()
+    second = int(second)
+    return datetime.datetime(year, month, day, hour, minute, second)
 
 # AOI / Obserber
 AOI = ephem.Observer()
@@ -37,27 +46,18 @@ OrbitOffset = 0 # Offset from orbit number of pyorbital
 # Set Observer of Satellite
 satellite.compute(AOI)
 
-# Print setting
+# Print settings
 print("*** TLE (epoch=%s)" % (epoch))
 print(TLE)
 print("")
 print("*** AOI")
-print("lon=%s, lat=%s" % (AOI.lon, AOI.lat))
+print("Long=%s (%.4f), Lat=%s (%.4f)" % (AOI.lon, deg(AOI.lon), AOI.lat, deg(AOI.lat)))
 print("")
 print("*** Search Parameters")
 print("MaxOffNadir=%s" % (MaxOffNadir))
 print("MaxPass=%s" % (MaxPass))
 print("OrbitOffset=%d" % (OrbitOffset))
 print("")
-
-# Utility functions
-def deg(radians):
-    return radians / ephem.degree
-
-def jday2datetime(jday):
-    (year, month, day, hour, minute, second) = ephem.Date(jday).tuple()
-    second = int(second)
-    return datetime.datetime(year, month, day, hour, minute, second)
 
 # Search Pass not in Earth's shadow and off-nadir < MaxOffNadir
 print("*** Searching Passes")
@@ -89,12 +89,21 @@ while i < MaxPass:
         i = i + 1
         orbit = po_satellite.get_orbit_number(jday2datetime(mat)) + OrbitOffset
         print("")
-        print("PASS # %d, Orbit=%d" %(i, orbit))
+        '''\
         print("Rise    time=%s, Rise Az=%5.1f[deg]" % (rt, deg(ra)))
-        print("Max Alt time=%s, Max Alt=%5.1f[deg], OffNadira=%5.1f[deg]" % (mat, deg(ma), deg(offNadir)))
+        print("Max Alt time=%s, Max Alt=%5.1f[deg], OffNadira=%4.1f[deg]" % (mat, deg(ma), deg(offNadir)))
         print("Set     time=%s, Set Az =%5.1f[deg]" % (st, deg(sa)))
         print("")
-
+        #'''
+        print("*** PASS # %d, Orbit=%d" % (i, orbit))
+        print("Datetime  %20s" % (mat))
+        print("Longitude %15s(+E)" % (satellite.sublong))
+        print("Latitude  %15s(+N)" % (satellite.sublat))
+        print("Height    %15.1f[Km]"  % (satellite.elevation / 1000))
+        print("Azimuth  from AOI  %6.1f[deg]" % (deg(satellite.az)))
+        print("Altitude from AOI  %6.1f[deg]" % (deg(satellite.alt)))
+        print("Distance from AOI  %6.1f[Km]"  % (satellite.range / 1000))
+        print("Off-Nadir of AOI   %6.1f[deg]" % (deg(offNadir)))
     # Move Satellite to end of pass + 1 sec.
     AOI.date = st + ephem.second
     satellite.compute(AOI)
